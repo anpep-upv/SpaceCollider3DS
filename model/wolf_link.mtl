@@ -20,7 +20,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd /home/angel/Documentos/WolfLink/b0.png
+map_Kd wolf_link/b0.png
 
 newmtl cloth_mat
 Ns 225.000000
@@ -31,7 +31,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd /home/angel/Documentos/WolfLink/cloth.png
+map_Kd wolf_link/cloth.png
 
 newmtl e_mat
 Ns 225.000000
@@ -42,4 +42,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd /home/angel/Documentos/WolfLink/e.0.png
+map_Kd wolf_link/e.0.png

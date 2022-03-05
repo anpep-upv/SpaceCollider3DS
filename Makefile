@@ -39,7 +39,9 @@ DATA		:=	data
 INCLUDES	:=	include
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
+MODELS      :=  model
 GFXBUILD	:=	$(ROMFS)/gfx
+MODELBUILD  :=  $(ROMFS)/model
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -51,9 +53,6 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__ -D__3DSLINK_HOST=\"$(shell ip route get 1.1.1.1 | sed -e 's/.*src //' | sed -e 's/ uid.*//' | head -n 1)\" -Iinclude -Iexternal/fmt/include
-
-$(info ${CFLAGS})
-
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++20
 
 ASFLAGS	:=	-g $(ARCH)
@@ -89,6 +88,7 @@ CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 PICAFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.v.pica)))
 SHLISTFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.shlist)))
+OBJFILES    :=  $(foreach dir,$(MODELS),$(notdir $(wildcard $(dir)/*.obj)))
 GFXFILES	:=	$(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.t3s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
@@ -115,6 +115,7 @@ else
 #---------------------------------------------------------------------------------
 export ROMFS_T3XFILES	:=	$(patsubst %.t3s, $(GFXBUILD)/%.t3x, $(GFXFILES))
 export T3XHFILES		:=	$(patsubst %.t3s, $(BUILD)/%.h, $(GFXFILES))
+export ROMFS_DATFILES         :=  $(patsubst %.obj, $(MODELBUILD)/%.dat, $(OBJFILES))
 #---------------------------------------------------------------------------------
 endif
 #---------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ endif
 .PHONY: all clean
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
+all: $(BUILD) $(MODELBUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_DATFILES) $(ROMFS_T3XFILES) $(T3XHFILES)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 $(BUILD):
@@ -171,6 +172,11 @@ $(BUILD):
 
 ifneq ($(GFXBUILD),$(BUILD))
 $(GFXBUILD):
+	@mkdir -p $@
+endif
+
+ifneq ($(MODELBUILD),$(BUILD))
+$(MODELBUILD):
 	@mkdir -p $@
 endif
 
@@ -182,8 +188,12 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(MODELBUILD) $(GRAPHICS)/cafe_*.t3s
 	@mkdir $(BUILD)
+
+$(MODELBUILD)/%.dat   :    $(MODELS)/%.obj
+	@echo $(notdir $<)
+	@python3 tool/model3d_compiler.py $< $(MODELBUILD)/$*.dat $(GRAPHICS)
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s

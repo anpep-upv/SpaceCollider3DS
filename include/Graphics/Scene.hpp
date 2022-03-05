@@ -16,43 +16,40 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
+#include <cstdint>
+
+#include <citro3d.h>
 
 #include "../Foundation/NonCopyable.hpp"
 #include "../Foundation/NonMoveable.hpp"
-#include "../Graphics/Scene.hpp"
+#include "../Foundation/Util.hpp"
 
-/**
- * The App class abstracts the main application logic. It's purpose is to instantiate objects used throughout the entire
- * application lifecycle.
- */
-struct App final : NonCopyable, NonMoveable {
-    /**
-     * Instantiates the application.
-     */
-    App();
+struct Scene : NonCopyable, NonMoveable {
+    virtual ~Scene();
+    virtual void update();
+    virtual void render();
 
-    /**
-     * Releases all resources used by the application.
-     */
-    ~App();
+    C3D_Mtx projection_matrix = {};
 
-    /**
-     * Executes the main application loop.
-     */
-    void run();
+    int8_t uloc_projection = 0, uloc_model_view = 0;
+    int8_t uloc_light_vec = 0, uloc_light_half_vec = 0, uloc_light_clr = 0;
+    int8_t uloc_material = 0;
+
+protected:
+    Scene();
+
+    /* GPUVertex shader */
+    DVLB_s* m_shader_dvlb = nullptr;
+    shaderProgram_s m_shader_program = {};
+
+    /* GPU attributes */
+    C3D_AttrInfo* m_attr_info;
+
+    /* Camera */
+    static constexpr float k_camera_fov = 55.0f;
+    static constexpr float k_camera_near = 20.f;
+    static constexpr float k_camera_far = 10000.0f;
 
 private:
-    static constexpr auto k_tag = "App";
-
-    /* Socket service */
-    static constexpr uint32_t k_soc_align = 0x1000;
-    static constexpr uint32_t k_soc_buffer_size = 0x100000;
-    uint32_t* m_soc_buffer;
-
-    /* Graphics */
-    Scene* m_top_scene;
-    Scene *m_bottom_scene;
-
-    C3D_RenderTarget* m_top_screen;
-    C3D_RenderTarget *m_bottom_screen;
+    static constexpr auto k_tag = "Scene";
 };

@@ -17,42 +17,25 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
+#include <citro2d.h>
+
 #include "../Foundation/NonCopyable.hpp"
 #include "../Foundation/NonMoveable.hpp"
-#include "../Graphics/Scene.hpp"
+#include "Sprite.hpp"
 
-/**
- * The App class abstracts the main application logic. It's purpose is to instantiate objects used throughout the entire
- * application lifecycle.
- */
-struct App final : NonCopyable, NonMoveable {
-    /**
-     * Instantiates the application.
-     */
-    App();
+struct SpriteSheet final : NonCopyable, NonMoveable {
+    explicit SpriteSheet(const std::string& path);
+    ~SpriteSheet();
 
-    /**
-     * Releases all resources used by the application.
-     */
-    ~App();
-
-    /**
-     * Executes the main application loop.
-     */
-    void run();
+    size_t get_sprite_count() const { return m_sprite_count; }
+    Sprite& get_sprite(size_t index) { return m_sprites[index]; }
+    std::vector<Sprite>& get_sprites() { return m_sprites; }
 
 private:
-    static constexpr auto k_tag = "App";
-
-    /* Socket service */
-    static constexpr uint32_t k_soc_align = 0x1000;
-    static constexpr uint32_t k_soc_buffer_size = 0x100000;
-    uint32_t* m_soc_buffer;
-
-    /* Graphics */
-    Scene* m_top_scene;
-    Scene *m_bottom_scene;
-
-    C3D_RenderTarget* m_top_screen;
-    C3D_RenderTarget *m_bottom_screen;
+    C2D_SpriteSheet m_c2d_sprite_sheet;
+    size_t m_sprite_count;
+    std::vector<Sprite> m_sprites;
 };

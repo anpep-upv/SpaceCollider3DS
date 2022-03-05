@@ -17,42 +17,17 @@
 
 #pragma once
 
-#include "../Foundation/NonCopyable.hpp"
-#include "../Foundation/NonMoveable.hpp"
+#include "../Graphics/Model3D.hpp"
 #include "../Graphics/Scene.hpp"
+#include "../Graphics/TextObject.hpp"
 
-/**
- * The App class abstracts the main application logic. It's purpose is to instantiate objects used throughout the entire
- * application lifecycle.
- */
-struct App final : NonCopyable, NonMoveable {
-    /**
-     * Instantiates the application.
-     */
-    App();
-
-    /**
-     * Releases all resources used by the application.
-     */
-    ~App();
-
-    /**
-     * Executes the main application loop.
-     */
-    void run();
+struct MainScene final : Scene {
+    MainScene();
+    void update() override;
+    void render() override;
 
 private:
-    static constexpr auto k_tag = "App";
-
-    /* Socket service */
-    static constexpr uint32_t k_soc_align = 0x1000;
-    static constexpr uint32_t k_soc_buffer_size = 0x100000;
-    uint32_t* m_soc_buffer;
-
-    /* Graphics */
-    Scene* m_top_scene;
-    Scene *m_bottom_scene;
-
-    C3D_RenderTarget* m_top_screen;
-    C3D_RenderTarget *m_bottom_screen;
+    Model3D m_character_model;
+    Model3D m_character_model2;
+    TextObject m_text;
 };

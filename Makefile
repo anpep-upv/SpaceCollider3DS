@@ -189,7 +189,7 @@ endif
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(MODELBUILD) $(GRAPHICS)/cafe_*.t3s
-	@mkdir $(BUILD)
+	@mkdir $(BUILD) $(GFXBUILD) $(MODELBUILD)
 
 $(MODELBUILD)/%.dat   :    $(MODELS)/%.obj
 	@echo $(notdir $<)

@@ -40,13 +40,16 @@ for name, material in obj_file.materials.items():
         assert t3s_stem.isascii()
         texture_counter += 1
 
-        with open(f"{t3s_stem}.t3s", "w") as f:
-            abs_path = os.path.abspath(material.texture.path)
-            assert ' ' not in abs_path
-            f.writelines([
-                "-f auto-etc1 -z auto\n",
-                abs_path
-            ])
+        try:
+            with open(f"{t3s_stem}.t3s", "w") as f:
+                abs_path = os.path.abspath(material.texture.path)
+                assert ' ' not in abs_path
+                f.writelines([
+                    "-f auto-etc1 -z auto\n",
+                    abs_path
+                ])
+        except IOError as error:
+            print(f"warning: could not open texture file: {error}")
 
         # write texture path length and characters
         texture_path = f"romfs:/{t3s_stem}.t3x"
@@ -73,44 +76,3 @@ for name, material in obj_file.materials.items():
     # write VBO length and VBO data
     cafe_file.write(struct.pack(f"<H", len(vbo)))
     cafe_file.write(vbo)
-
-    print(name, material)
-    print(material.vertex_format)
-    print(material.vertices)
-    print(material.diffuse)
-    print(material.ambient)
-    print(material.emissive)
-    print(material.texture)
-
-exit(0)
-
-positions = []
-texcoords = []
-normals = []
-
-data = b''
-
-with open(sys.argv[1], "r") as obj_file:
-    with open(sys.argv[2], "wb") as bvl_file:
-        for line in obj_file.readlines():
-            if not line or line.strip().startswith("#"):
-                continue
-            cmd, args = line.strip().split()
-
-            if cmd == 'v':
-                positions.append(tuple(map(float, args)))
-            elif cmd == 'vt':
-                texcoords.append(tuple(map(float, args)))
-            elif cmd == 'vn':
-                normals.append(tuple(map(float, args)))
-            elif cmd == 'f':
-                for arg in args:
-                    position_idx, texcoord_idx, normal_idx = map(int, arg.split('/'))
-
-                    position = positions[position_idx - 1]
-                    texcoord = texcoords[texcoord_idx - 1]
-                    normal = normals[normal_idx - 1]
-
-                    bvl_file.write(struct.pack("<fff", *position))
-                    bvl_file.write(struct.pack("<ff", *texcoord))
-                    bvl_file.write(struct.pack("<fff", *normal))
